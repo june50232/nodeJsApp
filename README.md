@@ -5,4 +5,4 @@
 ### Simple NodeJs Express EJS App
 
 ### UML
-![img](https://github.com/june50232/nodeJsApp/blob/master/assets/member-uml.png)
+![img](https://github.com/june50232/nodeJsApp/blob/master/assets/message-uml.png)
