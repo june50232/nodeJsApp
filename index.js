@@ -39,21 +39,7 @@ app.use(express.static("publicPath"));
 app.use(express.urlencoded({extended: true}));
 
 // 建立需要的路由
-app.get("/", function(req, res) {
-    res.render("index.ejs")
-})
-
-// 建立需要的路由
-app.get("/member", async function(req, res) {
-    // 檢查使用者是否有透過登入程序，進入會員頁
-    if (!req.session.member) {
-        res.redirect("/")
-        return
-    }
-
-    // 從 Session 取得登入會員的名稱
-    const { name } = req.session.member
-
+app.get("/", async function(req, res) {
     // 取得所有留言資料
     const msgCollection = db.collection("msg")
     let msgResult = await msgCollection.find({})
@@ -63,74 +49,14 @@ app.get("/member", async function(req, res) {
     })
     msgs = msgs.reverse()
 
-    res.render("member.ejs", { 
-        name,
+    res.render("index.ejs", { 
         msgs
      })
 })
 
-// 連線到 /error?msg=錯誤訊息
-app.get("/error", function(req, res) {
-    const { msg } = req.query;
-    res.render("error.ejs", { msg })
-})
-
-// 註冊會員
-app.post("/signup", async function(req, res){
-    const { name, email, password } = req.body
-    
-    // 檢查資料庫中的資料
-    const collection = db.collection("member")
-    let result = await collection.findOne({
-        email
-    })
-
-    // 如果 email 已經存在
-    if (result !== null) {
-        res.redirect("/error?msg=註冊失敗，信箱重複")
-        return
-    }
-
-    // 將新的會員資料放到資料庫
-    result = await collection.insertOne({
-        name,
-        email,
-        password
-    })
-
-    // 新增成功，導回首頁
-    res.redirect("/")
-})
-
-// 登入功能的路由
-app.post("/signin", async function(req, res) {
-    const { email, password } = req.body
-
-    // 檢查資料庫中的資料
-    const collection = db.collection("member")
-    let result = await collection.findOne({
-        $and: [
-            { email },
-            { password }
-        ]
-    });
-    if (result === null) {
-        res.redirect("error?msg=登入失敗，email 或 password 錯誤")
-        return
-    }
-    // 登入成功，紀錄會員資訊在 Session 中
-    req.session.member = result
-    res.redirect("/member")
-})
-
-app.post("/member", async function(req, res) {
-    if (!req.session.member) {
-        res.redirect("/")
-        return
-    }
-    
-    const { msg } = req.body
-    const { name } = req.session.member
+app.post("/message", async function(req, res) {
+    const { name, msg } = req.body
+    console.log('test----', name, msg)
     const year = new Date().getFullYear();
     const month = new Date().getMonth() + 1;
     const date = new Date().getDate();
@@ -139,7 +65,8 @@ app.post("/member", async function(req, res) {
     const sec = new Date().getSeconds();
     const time = `${year}/${month}/${date} ${hour}:${min}:${sec}`;
     const collection = db.collection("msg")
-    if (msg !== "") {
+    
+    if (name!== "" && msg !== "") {
       // 將留言資料及時間放到資料庫
       let result = await collection.insertOne({
         name,
@@ -147,14 +74,8 @@ app.post("/member", async function(req, res) {
         time
       })
       // 新增成功，導回會員頁面
-      res.redirect("/member");
+      res.redirect("/");
     }
-})
-
-// 登出
-app.get("/signout", function(req, res) {
-    req.session.member = null;
-    res.redirect("/")
 })
 
 // 啟動伺服器在 http://localhost:3000
