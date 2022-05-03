@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員頁面 - <%= name %></title>
+</head>
+<body>
+    <h3>會員頁面</h3>
+    <div>Welcome <%= name %> !</div>
+
+    <h3>輸入留言</h3>
+    <form action="/member" method="POST">
+        <input type="text" name="msg" />
+        <button>送出留言</button>
+    </form>
+
+    <h3>留言列表</h3>
+    <% 
+        msgs = msgs.map(function(msg) {
+            return '<div>' + msg.name + '</div>' + '<div>' + msg.msg + '</div>'+ '<div>' + msg.time + '</div>'
+        }) 
+    %>
+    <p><%- msgs.join("<hr />") %></p>
+
+    <div><a href="/signout">登出</a></div>
+</body>
+</html>
